@@ -220,7 +220,7 @@ async function updateRole() {
         async (OBJ) => {
             const employee = await client.query(`
             SELECT  
-            CONCAT( first_name,' ',last_name )AS employees,
+            CONCAT( first_name,' ',last_name )AS fullname,
             role_id AS id
             FROM employee
             WHERE
@@ -228,18 +228,18 @@ async function updateRole() {
             `)
            return inquirer.prompt([
                 {
-                    name: "employee_name",
+                    name: "employee_id",
                     type: 'list',
                     choices: employee.rows.map(OBJ => {
                         return {
-                            name: OBJ.employees,
+                            name: OBJ.fullname,
                             value: OBJ.id
                         }
                     }),
                     message: "What is the employee you want to update"
                 },
                 {
-                    name: "new_role",
+                    name: "role_id",
                     type: 'list',
                     choices: roles.rows.map(OBJ => {
                         return {
@@ -252,12 +252,12 @@ async function updateRole() {
             ]).then(async (OBJ) => {
                 log(OBJ)
                 // does not work for some reason
-            const update = await client.query(`
+                const update = await client.query(`
                 UPDATE  
                 employee
-                SET role_id=${OBJ.role_id}
-                WHERE id=${OBJ.employee_name};
-                `)
+                SET role_id=$1
+                WHERE id=$2
+                `,[OBJ.role_id,OBJ.employee_id])
                  
             })
         })
